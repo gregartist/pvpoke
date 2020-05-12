@@ -39,7 +39,11 @@ require_once 'header.php'; ?>
 		<div class="supporter">LindenRyu</div>
 		<div class="supporter">impoid</div>
 		<div class="supporter">t00fan</div>
-		<div class="supporter">TehPool</div>
+		<div class="supporter">jkg5150</div>
+		<div class="supporter">jrj1986</div>
+		<div class="supporter">robbied888</div>
+
+		jrj1986
 	</div>
 
 	<h2 class="center">Master Supporters</h2>
@@ -122,6 +126,14 @@ require_once 'header.php'; ?>
 		<div class="supporter-container">
 			<img src="<?php echo $WEB_ROOT; ?>img/sponsors/wizap.jpg"/>
 			<div class="supporter"><a href="https://www.youtube.com/channel/UC77QyviuffB5xGKtAkn1XtQ" target="_blank">Wizap 7</a></div>
+		</div>
+		<div class="supporter-container">
+			<div class="space"></div>
+			<div class="supporter">TehPool</div>
+		</div>
+		<div class="supporter-container">
+			<img src="<?php echo $WEB_ROOT; ?>img/sponsors/spieletrend.png"/>
+			<div class="supporter"><a href="https://www.youtube.com/spieletrend" target="_blank">Daniel Schilling</a></div>
 		</div>
 	</div>
 </div>

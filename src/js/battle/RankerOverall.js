@@ -147,6 +147,7 @@ var RankerMaster = (function () {
 					var fastMove = pokemon.fastMovePool[arr[0]];
 					var chargedMoves = [pokemon.chargedMovePool[arr[1]-1]];
 					var consistencyScore = 1;
+					var beaminess = 1;
 
 					// Only calculate with two Charged Moves
 					if((arr.length > 2)&&(arr[2] != "0")){
@@ -188,17 +189,39 @@ var RankerMaster = (function () {
 							var factor = 1;
 							if((chargedMoves[0].energy > chargedMoves[1].energy)||( (chargedMoves[0].energy == chargedMoves[1].energy) && (chargedMoves[1].moveId == "ACID_SPRAY")||((chargedMoves[0].selfAttackDebuffing)&&(! chargedMoves[1].selfDebuffing)&&(chargedMoves[1].energy - chargedMoves[0].energy <= 10)))){
 								factor = (cycleFastDamage / cycleDamage) + ((chargedMoves[0].damage / cycleDamage) * (chargedMoves[1].dpe / chargedMoves[0].dpe));
+
+								// If the difference in energy is small, improve the consistency score as players may play straight more often
+								if(chargedMoves[1].energy < chargedMoves[0].energy){
+									factor += (1 - factor) * ((chargedMoves[1].energy-30) / (chargedMoves[0].energy-30)) * 0.5;
+								}
 							}
 
 							consistencyScore *= factor;
 						}
-
 
 						// Now do a square root mean
 						consistencyScore = Math.pow(consistencyScore, (1/effectivenessScenarios.length));
 					}
 
 					consistencyScore = Math.round(consistencyScore * 1000) / 10;
+
+					// Calculate beaminess, very official
+
+					if(cup == "beam"){
+						chargedMoves.sort((a,b) => (a.energy > b.energy) ? 1 : ((b.dpe > a.dpe) ? -1 : 0));
+						var fastestMove = chargedMoves[0];
+						var beamType = chargedMoves[1].type;
+						var speed = (45-(Math.floor(80 / fastMove.energyGain) * (fastMove.cooldown / 500))) * (80 / fastestMove.energy);
+						var power = (pokemon.types.indexOf(beamType) > -1) ? 1.2 : 1;
+						var stats = (pokemon.stats.atk * pokemon.stats.def * pokemon.stats.hp) / 10000;
+
+						beaminess = speed * power * stats;
+						beaminess = Math.round(((beaminess+10000) / 22500) * 1000) / 10;
+
+						// Factor by performance
+						beaminess = ((beaminess*2) + rankings[i].scores[0] + rankings[i].scores[1]) / 4;
+						beaminess = (Math.round(beaminess * 10) / 10) + 10;
+					}
 
 					/* Let's try a different approach to calculating overall score.
 					* Weigh the top 2 ratings by 9/20 and the bottom 2 ratings by 1/20.
@@ -213,6 +236,10 @@ var RankerMaster = (function () {
 					}
 
 					rankings[i].scores.push(consistencyScore);
+
+					if(cup == "beam"){
+						rankings[i].scores.push(beaminess);
+					}
 
 					sortedScores.push(scores[0],
 						scores[1],
@@ -260,6 +287,51 @@ var RankerMaster = (function () {
 						console.log("Request: "+JSON.stringify(request));
 					}
 				});
+
+				// Save beaminess
+
+				if(cup == "beam"){
+					for(var i = 0; i < rankings.length; i++){
+						rankings[i].score = rankings[i].scores[6];
+						delete rankings[i].scores;
+					}
+
+					rankings.sort((a,b) => (a.score > b.score) ? -1 : ((b.score > a.score) ? 1 : 0));
+
+					var json = JSON.stringify(rankings);
+
+					console.log(json);
+
+					var json = JSON.stringify(rankings);
+					var league = battle.getCP();
+					var category = "beaminess";
+
+					console.log(category+"/rankings-"+league+".json");
+
+					// Write to a file
+
+					$.ajax({
+
+						url : 'data/write.php',
+						type : 'POST',
+						data : {
+							'data' : json,
+							'league' : league,
+							'category' : category,
+							'cup' : cup
+						},
+						dataType:'json',
+						success : function(data) {
+							console.log(data);
+						},
+						error : function(request,error)
+						{
+							console.log("Request: "+JSON.stringify(request));
+						}
+					});
+
+					return rankings;
+				}
 
 				// Save consistency scores
 

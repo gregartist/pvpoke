@@ -62,13 +62,25 @@ var InterfaceMaster = (function () {
 
 				// Force 1500 if not general
 
-				if((cup != 'all')&&(cup != 'gen-5')){
+				if((cup != 'all')&&(cup != 'gen-5')&&(cup != "premier")){
 					league = 1500;
 
 					$(".league-select option[value=\"1500\"]").prop("selected","selected");
 				}
 
+				if(cup == "premier"){
+					league = 10000;
+
+					$(".league-select option[value=\"10000\"]").prop("selected","selected");
+				}
+
 				battle.setCP(league);
+
+				if(cup == "beam"){
+					category = "beaminess";
+					$(".description").hide();
+					$(".description."+category).show();
+				}
 
 				/* This timeout allows the interface to display the loading message before
 				being thrown into the data loading loop */
@@ -111,14 +123,6 @@ var InterfaceMaster = (function () {
 					limitedPokemon = ["medicham","lucario","venusaur","meganium","skarmory","altaria","bastiodon","probopass","tropius","azumarill"];
 				}
 
-
-				if(cup == "safari"){
-					$(".limited").show();
-					$(".check.limited").addClass("on");
-
-					limitedPokemon = ["venusaur","meganium","skarmory","altaria","bastiodon","probopass","tropius","azumarill","wormadam_trash","forretress","vigoroth","swampert"];
-				}
-
 				if(cup == "fantasy"){
 					$(".limited").show();
 					$(".check.limited").addClass("on");
@@ -143,24 +147,13 @@ var InterfaceMaster = (function () {
 					var arr = r.moveStr.split("-");
 					var move = pokemon.chargedMovePool[arr[1]-1];
 
-					moveNameStr = pokemon.fastMovePool[arr[0]].name;
-					if(pokemon.fastMovePool[arr[0]].legacy){
-						moveNameStr += "*";
-					}
-					moveNameStr += ", " + move.name;
-					if(move.legacy){
-						moveNameStr += "*";
-					}
+					moveNameStr = pokemon.fastMovePool[arr[0]].displayName;
+
+					moveNameStr += ", " + move.displayName;
 
 					if((arr.length > 2)&&(arr[2] != "0")){
 						move = pokemon.chargedMovePool[arr[2]-1];
-						moveNameStr += ", " + move.name;
-
-						if(move.legacy){
-							moveNameStr += "*";
-						}
-
-
+						moveNameStr += ", " + move.displayName;
 					}
 
 					// Is this the best way to add HTML content? I'm gonna go with no here. But does it work? Yes!
@@ -284,6 +277,10 @@ var InterfaceMaster = (function () {
 			this.pushHistoryState = function(cup, cp, category, speciesId){
 				if(context == "custom"){
 					return false;
+				}
+
+				if(cup == "premier"){
+					cp = 10000;
 				}
 
 				var url = webRoot+"rankings/"+cup+"/"+cp+"/"+category+"/";
@@ -528,7 +525,7 @@ var InterfaceMaster = (function () {
 						displayWidth = displayWidth + "%";
 					}
 
-					$details.find(".moveset.fast").append("<div class=\"rank " + fastMoves[n].type + "\"><div class=\"name-container\"><span class=\"number\">#"+(n+1)+"</span><span class=\"name\">"+fastMoves[n].name+(fastMoves[n].legacy === false ? "" : " *")+"</span></div><div class=\"rating-container\"><div class=\"rating\" style=\"width:"+displayWidth+"\">"+percentStr+"</span></div><div class=\"clear\"></div></div>");
+					$details.find(".moveset.fast").append("<div class=\"rank " + fastMoves[n].type + "\"><div class=\"name-container\"><span class=\"number\">#"+(n+1)+"</span><span class=\"name\">"+fastMoves[n].displayName+"</span></div><div class=\"rating-container\"><div class=\"rating\" style=\"width:"+displayWidth+"\">"+percentStr+"</span></div><div class=\"clear\"></div></div>");
 				}
 
 				// Display charged moves
@@ -549,7 +546,15 @@ var InterfaceMaster = (function () {
 						displayWidth = displayWidth + "%";
 					}
 
-					$details.find(".moveset.charged").append("<div class=\"rank " + chargedMoves[n].type + "\"><div class=\"name-container\"><span class=\"number\">#"+(n+1)+"</span><span class=\"name\">"+chargedMoves[n].name+(chargedMoves[n].legacy === false ? "" : " *")+"</span></div><div class=\"rating-container\"><div class=\"rating\" style=\"width:"+displayWidth+"\">"+percentStr+"</span></div><div class=\"clear\"></div></div>");
+					$details.find(".moveset.charged").append("<div class=\"rank " + chargedMoves[n].type + "\"><div class=\"name-container\"><span class=\"number\">#"+(n+1)+"</span><span class=\"name\">"+chargedMoves[n].displayName+"</span></div><div class=\"rating-container\"><div class=\"rating\" style=\"width:"+displayWidth+"\">"+percentStr+"</span></div><div class=\"clear\"></div></div>");
+				}
+
+				// Display moveset override notice where applicable
+
+				if( (pokemon.fastMove.moveId != fastMoves[0].moveId)
+					|| ((pokemon.chargedMoves[0].moveId != chargedMoves[0].moveId)&&(pokemon.chargedMoves[0].moveId != chargedMoves[1].moveId))
+				 	|| ((pokemon.chargedMoves[1].moveId != chargedMoves[0].moveId)&&(pokemon.chargedMoves[1].moveId != chargedMoves[1].moveId))){
+					$details.find(".detail-section.moveset-override").show();
 				}
 
 				// Helper variables for displaying matchups and link URL
@@ -645,6 +650,45 @@ var InterfaceMaster = (function () {
 					$details.find(".counters").append($item);
 				}
 
+				// Display Pokemon's type information
+
+				$details.find(".typing .type").eq(0).addClass(pokemon.types[0]);
+				$details.find(".typing .type").eq(0).html(pokemon.types[0]);
+
+				if(pokemon.types[1] != "none"){
+					$details.find(".typing .type").eq(1).addClass(pokemon.types[1]);
+					$details.find(".typing .type").eq(1).html(pokemon.types[1]);
+				} else{
+					$details.find(".typing .rating-container").eq(1).hide();
+				}
+
+				// Display weaknesses and resistances
+				var effectivenessArr = []; // First we need to push the values into a sortable array, the original is key indexed (essentially an object)
+				for(var type in pokemon.typeEffectiveness) {
+					if (pokemon.typeEffectiveness.hasOwnProperty(type)) {
+						effectivenessArr.push({
+	 					   type: type,
+	 					   val: pokemon.typeEffectiveness[type]
+	 				   });
+					}
+				}
+
+				effectivenessArr.sort((a,b) => (a.val > b.val) ? -1 : ((b.val > a.val) ? 1 : 0));
+
+				for(var i = 0; i < effectivenessArr.length; i++){
+					var num = Math.floor(effectivenessArr[i].val * 1000) / 1000;
+					if(effectivenessArr[i].val > 1){
+						$details.find(".detail-section .weaknesses").append("<div class=\"type "+effectivenessArr[i].type+"\"><div class=\"multiplier\">x"+num+"</div><div>"+effectivenessArr[i].type+"</div></div>");
+					}
+				}
+
+				for(var i = effectivenessArr.length - 1; i >= 0; i--){
+					var num = Math.floor(effectivenessArr[i].val * 1000) / 1000;
+					if(effectivenessArr[i].val < 1){
+						$details.find(".detail-section .resistances").append("<div class=\"type "+effectivenessArr[i].type+"\"><div class=\"multiplier\">x"+num+"</div><div>"+effectivenessArr[i].type+"</div></div>");
+					}
+				}
+
 				// Display Pokemon's stat ranges
 
 				var statRanges = {
@@ -692,7 +736,7 @@ var InterfaceMaster = (function () {
 
 					multiBattleLink += "/";
 
-					$details.find(".share-link").before($("<div class=\"multi-battle-link\"><p>See all of <b>" + pokemon.speciesName + "'s</b> matchups:</p><a target=\"_blank\" class=\"button\" href=\""+multiBattleLink+"\">"+pokemon.speciesName+" vs. " + cupName +"</a></div>"));
+					$details.find(".detail-section.float").eq(2).before($("<div class=\"multi-battle-link\"><p>See all of <b>" + pokemon.speciesName + "'s</b> matchups:</p><a target=\"_blank\" class=\"button\" href=\""+multiBattleLink+"\">"+pokemon.speciesName+" vs. " + cupName +"</a></div>"));
 				} else{
 					$details.find(".share-link").remove();
 				}

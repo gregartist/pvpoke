@@ -1364,6 +1364,7 @@ select, input{
 		}
 
 		.breakpoints-section,
+		.matchup-detail-section,
 		.cmp-section{
 			max-width:340px;
 			margin: 0 auto 35px auto;
@@ -1895,7 +1896,8 @@ select, input{
 			}
 
 			&.overall,
-			&.stats{
+			&.stats,
+			&.typing{
 				width: 100%;
 				display: flex;
 				flex-wrap: wrap;
@@ -1923,6 +1925,22 @@ select, input{
 						background-color: rgba(0,0,0,.65);
 					}
 				}
+
+				.type{
+					display:inline-block;
+					text-transform: capitalize;
+					padding: 2px 12px;
+				}
+			}
+
+			&.moveset-override{
+				display:none;
+				font-size: 12px;
+				padding: 10px;
+			}
+
+			.footnote{
+				font-size: 12px;
 			}
 
 			.move{
@@ -1933,6 +1951,36 @@ select, input{
 
 				&.charged{
 					font-weight:bold;
+				}
+			}
+
+			.type{
+				border-radius:12px;
+				margin:3px;
+			}
+
+			.resistances, .weaknesses{
+				display:flex;
+				flex-wrap: wrap;
+
+				.type{
+					display:flex;
+
+					div:nth-of-type(2){
+						text-transform: capitalize;
+						padding: 2px 8px 2px 4px;
+						font-size:12px;
+						line-height: 18px;
+					}
+				}
+
+				.multiplier{
+					font-size: 12px;
+				    background: #333;
+				    color: #ddd;
+				    border-radius: 12px;
+				    padding: 2px 4px;
+					line-height: 18px;
 				}
 			}
 
@@ -2109,7 +2157,6 @@ select, input{
 			display:none;
 		}
 	}
-
 }
 
 .typings{
@@ -2293,8 +2340,12 @@ select, input{
 		margin-top:1em;
 	}
 
-	p{
+	p, ul{
 		line-height:26px;
+	}
+
+	ul li{
+		margin-bottom:10px;
 	}
 
 	.article-section{
@@ -2471,6 +2522,21 @@ select, input{
 		    padding: 0 5px;
 		    margin: 0 0 0 5px;
 		    border-radius: 30px;
+		}
+
+		.region-label{
+			font-size:14px;
+			font-weight: normal;
+			font-style: italic;
+			text-transform: capitalize;
+
+			&.kanto{ color:#ce0000; }
+			&.johto{ color:#a59662; }
+			&.hoenn{ color:#2665f3; }
+			&.sinnoh{ color:#821a37; }
+			&.unova{ color:#333; }
+			&.alola{ color:#fb900b; }
+			&.galar{ color:#946000; }
 		}
 	}
 }
@@ -3282,6 +3348,7 @@ a.toggle{
 			height:0;
 			overflow: hidden;
 			pointer-events: none;
+			white-space: nowrap;
 
 			@include transition(all, .125s, linear, 0s);
 
@@ -3299,13 +3366,19 @@ a.toggle{
 			a{
 				float:none;
 				margin: 6px 0;
-				width: 120px;
+				max-width: 150px;
 			}
 		}
 	}
 
 	.rank .details .detail-section.overall .rating-container .ranking-header{
 		font-size:16px;
+	}
+
+	.rank .details .detail-section .weaknesses .type div:nth-of-type(2),
+	.rank .details .detail-section .resistances .type div:nth-of-type(2){
+		font-size:16px;
+		line-height: 16px;
 	}
 
 	.rankings-container{

@@ -27,31 +27,26 @@
 	<!--Update section for updates-->
 	<h3>What's New</h3>
 
-	<h4>v1.14.1 (March 13, 2020)</h4>
+	<h4>v1.14.19 (May 11, 2020)</h4>
 	<ul>
-		<li>Shadow Pokemon have been removed from the Team Builder threats and alternatives lists for the time being.</li>
-		<ul>
-			<li>Shadow Pokemon are still listed in the CSV export.</li>
-		</ul>
-		<li>The Team Builder threats and alternative lists have been extended from 10 to 20 Pokemon.</li>
-		<li>Added an indicator in the battle timeline at 60 seconds to indicate when the switch button would be available after a switch.</li>
-		<li>Alolan Pokemon are no longer listed for "gen1"/"kanto" search.</li>
-		<li>Fixed an issue where entering Pokemon into custom groups (Matrix Battle, Team Builder, etc.) and then changing leagues would produce erroneous results. Changing league now adjusts the selected Pokemon to the appropriate CP.</li>
+		<li>Simulations, rankings, meta groups, and Training Battles have been updated with the latest move balance updates for Wild Charge, Moonblast, and Drill Run.</li>
+		<li>Premier Cup is now available in Training Battles.</li>
 	</ul>
 
 	<h3>Latest Article</h3>
 
 	<div class="article-item flex">
 		<div class="col-3">
-			<a href="<?php echo $WEB_ROOT; ?>articles/cliffhanger-team-building/">
-				<img src="<?php echo $WEB_ROOT; ?>assets/articles/cliffhanger-thumb.jpg" />
+			<a href="<?php echo $WEB_ROOT; ?>articles/best-elite-tm-candidates-pvp/">
+				<img src="<?php echo $WEB_ROOT; ?>assets/articles/elite-tm-thumb.jpg" />
 			</a>
 		</div>
 		<div class="col-9">
-			<h4><a href="<?php echo $WEB_ROOT; ?>articles/cliffhanger-team-building/">Team Building for GO Stadium Cliffhanger</a></h4>
-			<div class="date"> January 4, 2020</div>
-			<p>GO Stadium has introduced an exciting new format called Cliffhanger! Learn how to spend your points and build your Cliffhanger team from the ground up.</p>
+			<h4><a href="<?php echo $WEB_ROOT; ?>articles/best-elite-tm-candidates-pvp/">Best Elite TM Candidates for PvP</a></h4>
+			<div class="date">April 28, 2020</div>
+			<p>Elite TM's are now available! Which exclusive moves and Pokemon are the best for your PvP team?</p>
 		</div>
+
 	</div>
 
 </div>

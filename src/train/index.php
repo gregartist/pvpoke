@@ -40,15 +40,17 @@ require_once '../header.php';
 				<option value="1500 all">Great League</option>
 				<option value="2500 all">Ultra League</option>
 				<option value="10000 all">Master League</option>
-				<option value="1500 toxic">Toxic Cup</option>
+				<option value="10000 premier">Premier Cup</option>
+				<option value="1500 forest">Silph Forest Cup</option>
 			</select>
 			<h3 class="section-title">Difficulty</h3>
 			<select class="difficulty-select">
 				<option value="0">Novice</option>
 				<option value="1">Rival</option>
 				<option value="2">Elite</option>
-				<option value="3">Champion</option>
+				<option value="3" selected>Champion</option>
 			</select>
+			<div class="check autotap-toggle"><span></span>Autotap</div>
 			<h3 class="section-title">Team Selection</h3>
 			<select class="team-method-select">
 				<option value="random">Random</option>
@@ -83,6 +85,7 @@ require_once '../header.php';
 </div>
 
 <div class="section team-select">
+	<a class="return-to-setup" href="#">&larr; Team Select &amp; Setup</a>
 	<div class="opponent">
 		<h3 class="center">Opponent's Roster</h3>
 		<div class="featured-team-description">
@@ -125,9 +128,10 @@ require_once '../header.php';
 <div class="section white updates">
 	<h3>What's New</h3>
 
-	<h4>v1.14.2 (March 15, 2020)</h4>
+	<h4>v1.14.19 (May 11, 2020)</h4>
 	<ul>
-		<li>Added more Toxic Cup featured teams from RamblingRabbit and Gucc1G4ng69!</li>
+		<li>Simulations, rankings, meta groups, and Training Battles have been updated with the latest move balance updates for Wild Charge, Moonblast, and Drill Run.</li>
+		<li>Premier Cup is now available in Training Battles.</li>
 	</ul>
 </div>
 

@@ -39,6 +39,7 @@ function Pokemon(id, i, b){
 	this.fastMovePool = [];
 	this.chargedMovePool = [];
 	this.legacyMoves = [];
+	this.eliteMoves = [];
 	this.shadowEligible = false;
 	this.shadowType = "normal"; // normal, shadow, or purified
 	this.shadowAtkMult = 1;
@@ -79,6 +80,10 @@ function Pokemon(id, i, b){
 		this.legacyMoves = data.legacyMoves;
 	}
 
+	if(data.eliteMoves){
+		this.eliteMoves = data.eliteMoves;
+	}
+
 	// Set tags
 
 	this.tags = [];
@@ -94,6 +99,19 @@ function Pokemon(id, i, b){
 
 		if(move){
 			move.legacy = (self.legacyMoves.indexOf(move.moveId) > -1);
+			move.elite = (self.eliteMoves.indexOf(move.moveId) > -1);
+
+			if(move.elite){
+				move.legacy = false;
+			}
+
+			move.displayName = move.name;
+
+			if(move.legacy){
+				move.displayName = move.name + "<sup>†</sup>";
+			} else if(move.elite){
+				move.displayName = move.name + "*";
+			}
 
 			this.fastMovePool.push(move);
 		}
@@ -104,10 +122,24 @@ function Pokemon(id, i, b){
 
 		if(move){
 			move.legacy = (self.legacyMoves.indexOf(move.moveId) > -1);
+			move.elite = (self.eliteMoves.indexOf(move.moveId) > -1);
+
+			if(move.elite){
+				move.legacy = false;
+			}
+
+			move.displayName = move.name;
+
+			if(move.legacy){
+				move.displayName = move.name + "<sup>†</sup>";
+			} else if(move.elite){
+				move.displayName = move.name + "*";
+			}
 
 			this.chargedMovePool.push(move);
 		}
 	}
+
 
 	// Add Return and Frustration for eligible Pokemon
 
@@ -266,7 +298,7 @@ function Pokemon(id, i, b){
 
 	// Generate an array of IV combinations sorted by stat
 
-	this.generateIVCombinations = function(sortStat, sortDirection, resultCount, filters) {
+	this.generateIVCombinations = function(sortStat, sortDirection, resultCount, filters, ivFloor) {
 		var targetCP = battle.getCP();
 		var level = self.levelCap;
         var atkIV = 15;
@@ -284,19 +316,16 @@ function Pokemon(id, i, b){
 
 		var floor = 0;
 
-		var untradables = ["mew","celebi","deoxys_attack","deoxys_defense","deoxys_speed","deoxys","jirachi","darkrai"];
-		var maxNear1500 = ["bastiodon"]
-
 		if(self.hasTag("legendary")){
 			floor = 1;
 		}
 
-		if(untradables.indexOf(self.speciesId) > -1){
-			floor = 10;
+		if(ivFloor){
+			floor = ivFloor;
 		}
 
-		if((maxNear1500.indexOf(self.speciesId) > -1)&&(resultCount > 1)){
-			floor = 12;
+		if(self.hasTag("untradeable")){
+			floor = 10;
 		}
 
         hpIV = 15;
@@ -411,7 +440,7 @@ function Pokemon(id, i, b){
 		var effectiveness = defender.typeEffectiveness[self.fastMove.type];
 		var minAttack = self.generateIVCombinations("atk", -1, 1)[0].atk;
 		var maxAttack = self.generateIVCombinations("atk", 1, 1)[0].atk;
-		var maxDefense = defender.generateIVCombinations("def", 1, 1)[0].def * defender.shadowDefMult;
+		var maxDefense = defender.generateIVCombinations("def", 1, 1)[0].def;
 		var minDamage = battle.calculateDamageByStats(minAttack, defender.stats.def * defender.shadowDefMult, effectiveness, self.fastMove);
 		var maxDamage = battle.calculateDamageByStats(maxAttack, defender.stats.def * defender.shadowDefMult, effectiveness, self.fastMove);
 
@@ -603,6 +632,16 @@ function Pokemon(id, i, b){
 		for(var i = 0; i < sourceArrs.length; i++){
 			for(var n = 0; n < sourceArrs[i].length; n++){
 				targetArrs[i].push(sourceArrs[i][n]);
+			}
+		}
+
+		// Pop beams to the front
+
+		if((battle.getCup())&&(battle.getCup().name == "beam")){
+			for(var i = 0; i < chargedMoves.length; i++){
+				if((chargedMoves[i].moveId == "SOLAR_BEAM")||(chargedMoves[i].moveId == "HYPER_BEAM")){
+					chargedMoves[i].dpe = 100;
+				}
 			}
 		}
 
@@ -862,10 +901,6 @@ function Pokemon(id, i, b){
 
 		for(var n = 0; n < allTypes.length; n++){
 			effectiveness = battle.getEffectiveness(allTypes[n], self.types);
-
-			// Round to nearest thousandths to avoid Javascript floating point wonkiness
-
-			effectiveness = Math.floor(effectiveness * 1000) / 1000;
 			arr[allTypes[n].toLowerCase()] = effectiveness;
 		}
 
